@@ -1,0 +1,48 @@
+import numpy as np
+
+# Функция активации
+def activation_function(x):
+    return 1 / (1 + np.exp(-x))
+
+# Класс однослойного персептрона
+class Perceptron:
+    def __init__(self, input_size, output_size, learning_rate=0.1):
+        self.input_size = input_size
+        self.output_size = output_size
+        self.learning_rate = learning_rate
+        self.weights = np.random.randn(input_size, output_size)
+
+    def forward(self, X):
+        self.weighted_sum = np.dot(X, self.weights)
+        self.output = activation_function(self.weighted_sum)
+        return self.output
+
+    def train(self, X, y, epochs=100):
+        for epoch in range(epochs):
+            for i in range(len(X)):
+                output = self.forward(X[i])
+                error = y[i] - output
+                self.weights += self.learning_rate * np.outer(X[i], error)
+
+    def predict(self, X):
+        return np.argmax(self.forward(X), axis=1)
+# Пример использования
+# Загрузка и подготовка данных
+X_train = np.array([...])  # 16 обучающих образов
+y_train = np.array([...])  # метки классов для обучающих образов
+X_test = np.array([...])   # 4 тестовых образа
+
+# Создание и обучение персептрона
+perceptron = Perceptron(X_train.shape[1], 4)
+perceptron.train(X_train, y_train, epochs=1000)
+
+# Тестирование
+predictions = perceptron.predict(X_test)
+accuracy = np.mean(predictions == y_test)
+print(f"Точность на тестовой выборке: {accuracy:.2f}")
+
+# Тестирование на рандомном изображении
+random_image = np.random.rand(X_train.shape[1])
+predicted_class = perceptron.predict([random_image])[0]
+print(f"Предсказанный класс для случайного изображения: {predicted_class}")
+
