@@ -1,0 +1,56 @@
+Импортируем необходимые библиотеки:
+import numpy as np
+import random
+
+Определим класс для нейрона:
+class Neuron:
+    def __init__(self, n_inputs):
+        self.weights = [random.uniform(-1, 1) for _ in range(n_inputs)]
+        self.bias = random.uniform(-1, 1)
+
+    def activate(self, inputs):
+        weighted_sum = sum(x * w for x, w in zip(inputs, self.weights)) + self.bias
+        return 1 if weighted_sum >= 0 else 0
+    def train(self, inputs, target_output, learning_rate):
+        output = self.activate(inputs)
+        error = target_output - output
+        self.weights = [w + learning_rate * error * x for w, x in zip(self.weights, inputs)]
+        self.bias += learning_rate * error
+
+
+
+Определим класс для однослойной нейронной сети:
+class NeuralNetwork:
+    def __init__(self, n_inputs, n_outputs):
+        self.neurons = [Neuron(n_inputs) for _ in range(n_outputs)]
+
+
+    def predict(self, inputs):
+        outputs = [neuron.activate(inputs) for neuron in self.neurons]
+        return outputs
+
+    def train(self, X, y, epochs, learning_rate):
+        for _ in range(epochs):
+            for inputs, target_outputs in zip(X, y):
+                for neuron, target_output in zip(self.neurons, target_outputs):
+                    neuron.train(inputs, target_output, learning_rate)
+
+    def evaluate(self, X, y):
+        correct = 0
+        for inputs, target_outputs in zip(X, y):
+            outputs = self.predict(inputs)
+            if all(output == target_output for output, target_output in zip(outputs, target_outputs)):
+                correct += 1
+        return correct / len(X)
+
+# Подготовка данных
+X_train, y_train = load_training_data()
+X_test, y_test = load_test_data()
+
+# Создание и обучение нейронной сети
+nn = NeuralNetwork(n_inputs=784, n_outputs=4)
+nn.train(X_train, y_train, epochs=1000, learning_rate=0.1)
+
+# Оценка качества обучения
+accuracy = nn.evaluate(X_test, y_test)
+print(f"Accuracy: {accuracy:.2f}")
